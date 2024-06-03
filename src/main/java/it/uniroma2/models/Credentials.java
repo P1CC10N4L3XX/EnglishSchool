@@ -3,12 +3,24 @@ package it.uniroma2.models;
 public class Credentials {
     private String username;
     private String password;
-    private byte type;
+    private Role role;
 
-    public Credentials(String username,String password,byte type){
+    public Credentials(String username,String password,Role role){
         this.username = username;
         this.password = password;
-        this.type= type;
+        this.role= role;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     public String getUsername() {
@@ -19,7 +31,7 @@ public class Credentials {
         return password;
     }
 
-    public byte getType() {
-        return type;
+    public Role getRole() {
+        return role;
     }
 }
