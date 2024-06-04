@@ -1,9 +1,12 @@
 package it.uniroma2.view.utils;
 
 import it.uniroma2.exceptions.NotCompatibleOsException;
+import it.uniroma2.exceptions.NullListException;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.List;
 
 public class GraphicUtils {
     public static void showTitle(String title){
@@ -14,14 +17,30 @@ public class GraphicUtils {
         System.out.println(cuteTitle);
         System.out.println(cuteLine);
     }
-
+    public static void showTitle(String title,Color color){
+        final int SPACING=16;
+        String cuteLine = "+" + "-".repeat(title.length() + SPACING) + "+";
+        String cuteTitle = "|"+" ".repeat(SPACING/2)+title+" ".repeat(SPACING/2)+"|";
+        System.out.println(Color.fromColor(color)+cuteLine+"\033[0m");
+        System.out.println(Color.fromColor(color)+cuteTitle+"\033[0m");
+        System.out.println(Color.fromColor(color)+cuteLine+"\033[0m");
+    }
     public static void showSubTitle(String subTitle){
-        final int SPACING=4;
-        String cuteLine = "*".repeat(subTitle.length()+SPACING);
+        final int SPACING=2;
+        String cuteLine = "*".repeat(subTitle.length()+SPACING+2);
         String cuteSubtitle = "*"+" ".repeat(SPACING/2)+subTitle+" ".repeat(SPACING/2)+"*";
         System.out.println(cuteLine);
         System.out.println(cuteSubtitle);
         System.out.println(cuteLine);
+    }
+
+    public static void showSubTitle(String subTitle,Color color){
+        final int SPACING=2;
+        String cuteLine = "*".repeat(subTitle.length()+SPACING+2);
+        String cuteSubtitle = "*"+" ".repeat(SPACING/2)+subTitle+" ".repeat(SPACING/2)+"*";
+        System.out.println(Color.fromColor(color)+cuteLine+"\033[0m");
+        System.out.println(Color.fromColor(color)+cuteSubtitle+"\033[0m");
+        System.out.println(Color.fromColor(color)+cuteLine+"\033[0m");
     }
 
     public static void showSeparator(int k){
@@ -51,8 +70,7 @@ public class GraphicUtils {
         }
     }
 
-
     public static void showError(String message) {
-        System.out.println("\033[0;31m"+message+"\\033[0m");
+        System.out.println("\033[0;31m"+message+"\033[0m");
     }
 }

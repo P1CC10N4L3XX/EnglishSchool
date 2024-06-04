@@ -47,7 +47,6 @@ public class ConnectionFactory {
             String url = prop.getProperty("CONNECTION_URL");
             String username = prop.getProperty("USERNAME_"+role.name());
             String password = prop.getProperty("PASSWORD_"+role.name());
-            System.out.println(username+" "+password);
             connection = DriverManager.getConnection(url,username,password);
         } catch (IOException e) {
             throw new RuntimeException(e);
