@@ -15,26 +15,34 @@ public class TableCreator {
         Field[] fields = realClass.getDeclaredFields();
         printScheme(fields);
         for (T item : raws) {
-            for (Field field : fields) {
-                field.setAccessible(true);
-                try {
-                    Object value = field.get(item);
-                    String stringValue = value != null ? value.toString() : "null";
-                    if(stringValue.length()>COLUMN_WIDTH) {
-                        System.out.print("|" + stringValue.substring(0,COLUMN_WIDTH-3)+"...");
-                    }else{
-                        System.out.print("|" + stringValue + " ".repeat(COLUMN_WIDTH - stringValue.length()));
-                    }
-                } catch (IllegalAccessException e) {
-                    System.out.print("|N/A" + " ".repeat(COLUMN_WIDTH - 4));
-                }
-            }
-            System.out.println("|");
-            for (Field field : fields) {
-                System.out.print("+" + "-".repeat(COLUMN_WIDTH));
-            }
-            System.out.println("+");
+            printEntry(item,fields);
         }
+    }
+    public static void showRow(Object object){
+        Field[] fields = object.getClass().getDeclaredFields();
+        printScheme(fields);
+        printEntry(object,fields);
+    }
+    private static void printEntry(Object object,Field[] fields){
+        for(Field field : fields){
+            field.setAccessible(true);
+            try{
+                Object value = field.get(object);
+                String stringValue = value != null ? value.toString() : "null";
+                if(stringValue.length()>COLUMN_WIDTH){
+                    System.out.print("|" + stringValue.substring(0,COLUMN_WIDTH-3)+"...");
+                }else{
+                    System.out.print("|" + stringValue + " ".repeat(COLUMN_WIDTH - stringValue.length()));
+                }
+            } catch (IllegalAccessException e) {
+                System.out.print("|N/A" + " ".repeat(COLUMN_WIDTH - 4));
+            }
+        }
+        System.out.println("|");
+        for (Field field : fields) {
+            System.out.print("+" + "-".repeat(COLUMN_WIDTH));
+        }
+        System.out.println("+");
     }
     private static void printScheme(Field[] fields){
         for(Field field : fields){

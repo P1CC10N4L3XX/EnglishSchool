@@ -73,4 +73,7 @@ public class GraphicUtils {
     public static void showError(String message) {
         System.out.println("\033[0;31m"+message+"\033[0m");
     }
+    public static void showSuccess(String message){
+        System.out.println(Color.fromColor(Color.GREEN)+message+"\033[0m");
+    }
 }

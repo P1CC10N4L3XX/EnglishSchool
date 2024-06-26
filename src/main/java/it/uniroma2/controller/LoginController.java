@@ -6,6 +6,7 @@ import it.uniroma2.exceptions.DAOException;
 import it.uniroma2.exceptions.NotCompatibleOsException;
 import it.uniroma2.models.Credentials;
 import it.uniroma2.view.LoginView;
+import it.uniroma2.view.utils.GraphicUtils;
 
 import java.io.IOException;
 
@@ -29,7 +30,7 @@ public class LoginController implements Controller{
             if(credentials.getRole()!=null){
                 break;
             }else{
-                System.out.println("Credenziali non valide!!");
+                GraphicUtils.showError("Credenziali non valide !!");
             }
         }
     }

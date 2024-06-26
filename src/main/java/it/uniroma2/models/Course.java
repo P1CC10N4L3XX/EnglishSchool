@@ -1,7 +1,7 @@
 package it.uniroma2.models;
 
 
-import java.util.Date;
+import java.sql.Date;
 
 public class Course {
     private int code;
@@ -14,6 +14,11 @@ public class Course {
         this.level = level;
         this.activationDate = activationDate;
         this.studentsNumber = studentsNumber;
+    }
+
+    public Course(int code,Level level){
+        this.code = code;
+        this.level = level;
     }
 
     public int getCode() {
