@@ -3,14 +3,16 @@ package it.uniroma2.beans;
 public class StudentBean {
     private String cf;
     private String name;
+    private String absenceNumber;
     private String telephonicNumber;
     private String courseCode;
     private String courseLevel;
     private String registrationDate;
 
-    public StudentBean(String cf, String name, String telephonicNumber, String courseCode, String courseLevel, String registrationDate){
+    public StudentBean(String cf, String name,String absenceNumber, String telephonicNumber, String courseCode, String courseLevel, String registrationDate){
         this.cf = cf;
         this.name = name;
+        this.absenceNumber = absenceNumber;
         this.telephonicNumber = telephonicNumber;
         this.courseCode = courseCode;
         this.courseLevel = courseLevel;
@@ -27,6 +29,10 @@ public class StudentBean {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setAbsenceNumber(String absenceNumber) {
+        this.absenceNumber = absenceNumber;
     }
 
     public void setCourseLevel(String levelCourse) {
@@ -51,6 +57,10 @@ public class StudentBean {
 
     public String getName() {
         return name;
+    }
+
+    public String getAbsenceNumber() {
+        return absenceNumber;
     }
 
     public String getcourseLevel() {

@@ -2,10 +2,7 @@ package it.uniroma2.database;
 
 import com.mysql.cj.jdbc.exceptions.MysqlDataTruncation;
 import it.uniroma2.database.utils.ConnectionFactory;
-import it.uniroma2.exceptions.DAOException;
-import it.uniroma2.exceptions.DataTooLongException;
-import it.uniroma2.exceptions.DuplicatedEntryDAOException;
-import it.uniroma2.exceptions.LessonTimeException;
+import it.uniroma2.exceptions.*;
 import it.uniroma2.models.Course;
 import it.uniroma2.models.Lesson;
 import it.uniroma2.models.Level;
@@ -16,7 +13,7 @@ import java.time.LocalTime;
 
 public class CreateLessonProcedureDAO implements ProcedureDAO{
     @Override
-    public Lesson execute(Object... params) throws DAOException, DuplicatedEntryDAOException, DataTooLongException, LessonTimeException {
+    public Lesson execute(Object... params) throws DAOException, DuplicatedEntryDAOException, DataTooLongException, LessonTimeException,VirException {
         int courseCode = Integer.parseInt((String) params[0]);
         String courseLevel = (String) params[1];
         String teacher = (String) params[2];
@@ -34,7 +31,11 @@ public class CreateLessonProcedureDAO implements ProcedureDAO{
             cs.setTime(6,endTime);
             cs.execute();
         }catch(SQLIntegrityConstraintViolationException e){
-            throw new DuplicatedEntryDAOException("Lezione inserita già esistente");
+            if(e.getErrorCode() == 1062) {
+                throw new DuplicatedEntryDAOException("Lezione inserita già esistente !!");
+            }else if(e.getErrorCode() == 1452){
+                throw new VirException("Corso o insegnante inserito non esistente !!");
+            }
         }catch(MysqlDataTruncation e){
             throw new DataTooLongException(e.getMessage());
         }catch(SQLException e){

@@ -17,6 +17,12 @@ public class Lesson {
         this.startTime = startTime;
         this.endTime = endTime;
     }
+    public Lesson(Course course,String day, Time startTime, Time endTime){
+        this.course = course;
+        this.day = day;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
 
     public Course getCourse() {
         return course;

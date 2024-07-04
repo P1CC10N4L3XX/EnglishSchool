@@ -14,6 +14,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -25,11 +26,10 @@ public class AdministrationView {
         System.out.println("1)Crea livello");
         System.out.println("2)Crea corso");
         System.out.println("3)Aggiungi insegnante");
-        System.out.println("4)Assegna insegnante ad un corso");
-        System.out.println("5)Crea una lezione di corso");
-        System.out.println("6)Genera report insegnante");
-        System.out.println("7)logout");
-        System.out.println("8)Esci dal programma");
+        System.out.println("4)Crea una lezione di corso");
+        System.out.println("5)Genera report insegnante");
+        System.out.println("6)logout");
+        System.out.println("7)Esci dal programma");
         Scanner input = new Scanner(System.in);
         int command;
         System.out.print("Inserire la scelta: ");
@@ -148,35 +148,7 @@ public class AdministrationView {
         return false;
     }
 
-    public static AssignationBean getAssignationInfo(List<CourseBean> courseBeanList, List<TeacherBean> teacherBeanList) throws IOException,NullListException{
-        GraphicUtils.showSpacing(1);
-        GraphicUtils.showSeparator(40);
-        GraphicUtils.showSubTitle("Assegna insegnante a corso",Color.GREEN);
-        GraphicUtils.showSpacing(1);
-        String teacherCf, courseCode, courseLevel;
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-        while(true){
-            System.out.println("Insegnanti:");
-            TableCreator.showTable(teacherBeanList);
-            System.out.print("Inserire codice fiscale insegnante: ");
-            teacherCf = bufferedReader.readLine();
-            System.out.println("Corsi:");
-            TableCreator.showTable(courseBeanList);
-            System.out.print("Inserire codice corso a cui assegnare l'insegnante: ");
-            courseCode = bufferedReader.readLine();
-            System.out.print("Inserire livello corso a cui assegnare l'insegnante: ");
-            courseLevel = bufferedReader.readLine();
-            if(isTeacherCfValid(teacherCf,teacherBeanList) && isCourseCodeAndLevelValid(courseCode,courseLevel,courseBeanList)){
-                break;
-            }else{
-                GraphicUtils.showError("Controllare che esistano il corso e l'insegnante inseriti !!");
-                GraphicUtils.showSpacing(1);
-            }
-        }
-        return new AssignationBean(teacherCf, courseCode, courseLevel);
-    }
-
-    public static LessonBean getLessonInfo(List<AssignationBean> assignationBeanList) throws IOException,NullListException{
+    public static LessonBean getLessonInfo() throws IOException{
         GraphicUtils.showSpacing(1);
         GraphicUtils.showSeparator(40);
         GraphicUtils.showSubTitle("Crea lezione di corso",Color.GREEN);
@@ -184,8 +156,6 @@ public class AdministrationView {
         String courseCode, courseLevel, teacherCf, lessonDay, startTime, endTime;
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
         while(true){
-            System.out.println("Assegnazioni:");
-            TableCreator.showTable(assignationBeanList);
             System.out.print("Inserire codice corso per cui creare la lezione: ");
             courseCode = bufferedReader.readLine();
             System.out.print("Inserire livello del corso per cui creare la lezione: ");
@@ -198,7 +168,7 @@ public class AdministrationView {
             startTime = bufferedReader.readLine();
             System.out.print("Inserire orario di fine [hh:mm] : ");
             endTime = bufferedReader.readLine();
-            if(isAssignationValid(teacherCf,courseCode,courseLevel,assignationBeanList) && isLessonDayValid(lessonDay) && isValidTimeFormat(startTime) && isValidTimeFormat(endTime)){
+            if(isLessonDayValid(lessonDay) && isValidTimeFormat(startTime) && isValidTimeFormat(endTime)){
                 break;
             }else{
                 GraphicUtils.showError("Le informazioni inserite non sono corrette !!");
@@ -207,6 +177,24 @@ public class AdministrationView {
 
         }
         return new LessonBean(courseCode,courseLevel,teacherCf,lessonDay,startTime,endTime);
+    }
+    public static ReportInputBean getReportInfo() throws IOException, InputMismatchException {
+        GraphicUtils.showSpacing(1);
+        GraphicUtils.showSeparator(40);
+        GraphicUtils.showSubTitle("Report insegnante",Color.GREEN);
+        GraphicUtils.showSpacing(1);
+        String teacher;
+        int month;
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        Scanner input = new Scanner(System.in);
+        System.out.print("Inserire codice fiscale insegnante: ");
+        teacher = bufferedReader.readLine();
+        System.out.print("Inserire mese [1 = gennaio, 2 = febbraio ...]: ");
+        month = input.nextInt();
+        if(!(month>=1 && month<=12)){
+            throw new InputMismatchException();
+        }
+        return new ReportInputBean(teacher,month);
     }
     private static boolean isValidTimeFormat (String time){
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm");
@@ -222,12 +210,4 @@ public class AdministrationView {
         return Arrays.asList(dayArray).contains(lessonDay.toLowerCase());
     }
 
-    private static boolean isAssignationValid(String teacherCf, String courseCode, String courseLevel, List<AssignationBean> assignationBeanList) {
-        for(AssignationBean assignationBean : assignationBeanList){
-            if(assignationBean.getTeacher().toLowerCase().equals(teacherCf.toLowerCase()) && assignationBean.getCourseCode().toLowerCase().equals(courseCode.toLowerCase()) && assignationBean.getCourseLevel().toLowerCase().equals(courseLevel.toLowerCase())){
-                return true;
-            }
-        }
-        return false;
-    }
 }

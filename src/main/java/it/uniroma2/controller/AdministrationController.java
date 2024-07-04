@@ -39,11 +39,10 @@ public class AdministrationController implements Controller{
                 case 1 -> createLevel();
                 case 2 -> createCourse();
                 case 3 -> createTeacher();
-                case 4 -> assignTeacher();
-                case 5 -> createLesson();
-                case 6 -> System.out.println("Bravo hai generato un report");
-                case 7 -> logout();
-                case 8 -> System.exit(0);
+                case 4 -> createLesson();
+                case 5 -> generateReport();
+                case 6 -> logout();
+                case 7 -> System.exit(0);
                 default -> GraphicUtils.showError("Scelta non valida !!");
             }
             if(command == 7){
@@ -51,6 +50,37 @@ public class AdministrationController implements Controller{
             }
         }
     }
+
+    private void generateReport() {
+        List<ReportRowAdministration> reportRowAdministrationList = new ArrayList<>();
+        List<ReportRowAdministrationBean> reportRowAdministrationBeanList = new ArrayList<>();
+        try {
+            while (true) {
+                try {
+                    ReportInputBean reportInputBean = AdministrationView.getReportInfo();
+                    reportRowAdministrationList = new GenerateAdministrationReportProcedureDAO().execute(reportInputBean.getTeacher(),reportInputBean.getMonth());
+                    String date,dayOfWeek,courseCode,courseLevel,startTime,endTime;
+                    for(ReportRowAdministration reportRowAdministration : reportRowAdministrationList){
+                        date = String.valueOf(reportRowAdministration.getDate());
+                        dayOfWeek = reportRowAdministration.getDayOfWeek();
+                        courseCode = String.valueOf(reportRowAdministration.getCourse().getCode());
+                        courseLevel = reportRowAdministration.getCourse().getLevel().getName();
+                        startTime = String.valueOf(reportRowAdministration.getStartTime());
+                        endTime = String.valueOf(reportRowAdministration.getEndTime());
+                        reportRowAdministrationBeanList.add(new ReportRowAdministrationBean(date,dayOfWeek,courseCode,courseLevel,startTime,endTime));
+                    }
+                    TableCreator.showTable(reportRowAdministrationBeanList);
+                }catch(InputMismatchException e){
+                    GraphicUtils.showError("Il mese inserito non è valido");
+                }
+            }
+        }catch(IOException | DAOException e){
+            throw new RuntimeException(e);
+        }catch(NullListException e){
+            GraphicUtils.showError("Non esistono lezioni per l'insegnante inserito !!");
+        }
+    }
+
     private void logout(){
         try {
             ConnectionFactory.getInstance().changeRole(Role.LOGIN);
@@ -59,23 +89,9 @@ public class AdministrationController implements Controller{
         }
     }
     private void createLesson() {
-        List<Assignation> assignationList = new ArrayList<>();
-        List<AssignationBean> assignationBeanList = new ArrayList<>();
-        try{
-            assignationList = new AssignationListProcedureDAO().execute();
-            String teacherCf, courseCode, courseLevel;
-            for(Assignation assignation : assignationList){
-                teacherCf = assignation.getTeacher().getCf();
-                courseCode = Integer.toString(assignation.getCourse().getCode());
-                courseLevel = assignation.getCourse().getLevel().getName();
-                assignationBeanList.add(new AssignationBean(teacherCf,courseCode,courseLevel));
-            }
-        }catch(DAOException e){
-            throw new RuntimeException(e);
-        }
         try {
             while (true) {
-                LessonBean lessonBean = AdministrationView.getLessonInfo(assignationBeanList);
+                LessonBean lessonBean = AdministrationView.getLessonInfo();
                 try {
                     Lesson lesson = new CreateLessonProcedureDAO().execute(lessonBean.getCourseCode(),lessonBean.getCourseLevel(),lessonBean.getTeacher(),lessonBean.getDay(),lessonBean.getStartTime(),lessonBean.getEndTime());
                     String courseCode = Integer.toString(lesson.getCourse().getCode());
@@ -89,72 +105,14 @@ public class AdministrationController implements Controller{
                     TableCreator.showRow(new LessonBean(courseCode,courseLevel,teacherCf,day,startTime,endTime));
                     GraphicUtils.showSpacing(1);
                     break;
-                }catch(DAOException e){
-                    throw new RuntimeException(e);
-                }catch(DataTooLongException | DuplicatedEntryDAOException | LessonTimeException e){
+                }catch(DataTooLongException | DuplicatedEntryDAOException | LessonTimeException | VirException e){
                     GraphicUtils.showSpacing(1);
                     GraphicUtils.showError(e.getMessage());
                     GraphicUtils.showSpacing(1);
                 }
-
             }
-        }catch(NullListException e){
-            GraphicUtils.showError("Potrebbero non esistere corsi o insegnanti per cui creare lezioni !!");
-        }catch(IOException e){
+        }catch(IOException | DAOException e){
             throw new RuntimeException(e);
-        }
-    }
-
-    private void assignTeacher(){
-        List<CourseBean> courseBeanList = new ArrayList<>();
-        List<TeacherBean> teacherBeanList = new ArrayList<>();
-        List<Teacher> teacherList = new ArrayList<>();
-        List<Course> courseList = new ArrayList<>();
-        Assignation assignation;
-        try {
-            teacherList = new TeacherListProcedureDAO().execute();
-            courseList = new CourseListProcedureDAO().execute();
-        }catch(DAOException e){
-            throw new RuntimeException(e);
-        }
-        String courseCode, courseLevel, courseActivationDate, courseStudentsNumber;
-        for (Course course : courseList) {
-            courseCode = Integer.toString(course.getCode());
-            courseLevel = course.getLevel().getName();
-            courseActivationDate = course.getActivationDate().toString();
-            courseStudentsNumber = Integer.toString(course.getStudentsNumber());
-            courseBeanList.add(new CourseBean(courseCode, courseLevel, courseActivationDate, courseStudentsNumber));
-        }
-        String teacherCf, teacherName, teacherAddress, teacherNationality;
-        for (Teacher teacher : teacherList) {
-            teacherCf = teacher.getCf();
-            teacherName = teacher.getName();
-            teacherAddress = teacher.getAddress();
-            teacherNationality = teacher.getNationality();
-            teacherBeanList.add(new TeacherBean(teacherCf, teacherName, teacherAddress, teacherNationality));
-        }
-        try {
-            while (true) {
-                AssignationBean assignationBean = AdministrationView.getAssignationInfo(courseBeanList, teacherBeanList);
-                try {
-                    assignation = new CreateAssignationProcedureDAO().execute(assignationBean.getTeacher(), assignationBean.getCourseCode(), assignationBean.getCourseLevel());
-                }catch(DuplicatedEntryDAOException e){
-                    GraphicUtils.showError(e.getMessage());
-                    continue;
-                }
-                assignationBean.setTeacher(assignation.getTeacher().getCf());
-                assignationBean.setCourseCode(Integer.toString(assignation.getCourse().getCode()));
-                assignationBean.setCourseLevel(assignation.getCourse().getLevel().getName());
-                GraphicUtils.showSpacing(1);
-                GraphicUtils.showSuccess("Assegnazione effettuata con successo !!");
-                TableCreator.showRow(assignationBean);
-                GraphicUtils.showSpacing(1);
-                break;
-            }
-        }catch(DAOException | IOException e){
-            throw new RuntimeException(e);
-        }catch(NullListException e){
-            GraphicUtils.showError("Potrebbero non esistere corsi o insegnanti sulla base di dati !!");
         }
     }
 
@@ -221,7 +179,8 @@ public class AdministrationController implements Controller{
             courseBean.setCode(Integer.toString(course.getCode()));
             courseBean.setActivationDate(courseActivationDate.toString());
             courseBean.setStudentsNumber("0");
-
+            GraphicUtils.showSuccess("corso creato con successo !!");
+            GraphicUtils.showSpacing(1);
             TableCreator.showRow(courseBean);
         }catch(DAOException | IOException e){
             throw new RuntimeException(e);

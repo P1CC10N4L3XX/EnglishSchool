@@ -1,6 +1,7 @@
 package it.uniroma2.controller;
 
 
+import it.uniroma2.database.utils.TeacherCookie;
 import it.uniroma2.models.Credentials;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ public class ApplicationController implements Controller{
                     new SecretariatController().start();
                     break;
                 case INSEGNANTE:
+                    TeacherCookie.getInstance().setLoggedUser(credentials.getUsername());
                     new TeacherController().start();
             }
         }

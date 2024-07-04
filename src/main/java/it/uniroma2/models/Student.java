@@ -5,15 +5,21 @@ import java.sql.Date;
 public class Student {
     private String cf;
     private String name;
+    private int absenceNumber;
     private String telephonicNumber;
     private Course course;
     private Date registrationDate;
-    public Student(String cf, String name, String telephonicNumber, Course course, Date registrationDate){
+    public Student(String cf, String name,int absenceNumber, String telephonicNumber, Course course, Date registrationDate){
         this.cf = cf;
         this.name = name;
+        this.absenceNumber = absenceNumber;
         this.telephonicNumber = telephonicNumber;
         this.course = course;
         this.registrationDate = registrationDate;
+    }
+
+    public Student(String cf) {
+        this.cf = cf;
     }
 
     public String getCf() {
