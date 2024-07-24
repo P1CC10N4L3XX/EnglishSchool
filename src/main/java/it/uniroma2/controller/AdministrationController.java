@@ -70,6 +70,7 @@ public class AdministrationController implements Controller{
                         reportRowAdministrationBeanList.add(new ReportRowAdministrationBean(date,dayOfWeek,courseCode,courseLevel,startTime,endTime));
                     }
                     TableCreator.showTable(reportRowAdministrationBeanList);
+                    break;
                 }catch(InputMismatchException e){
                     GraphicUtils.showError("Il mese inserito non è valido");
                 }

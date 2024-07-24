@@ -29,10 +29,10 @@ CREATE TABLE `allievo` (
   `NumeroAssenze` int NOT NULL DEFAULT '0',
   `CodiceCorso` int NOT NULL,
   `LivelloCorso` varchar(45) NOT NULL,
-  `DataIscrizione` datetime NOT NULL,
+  `DataIscrizione` date NOT NULL,
   PRIMARY KEY (`CF`),
   KEY `AllievoCorso_idx` (`CodiceCorso`,`LivelloCorso`),
-  CONSTRAINT `AllievoCorso` FOREIGN KEY (`CodiceCorso`, `LivelloCorso`) REFERENCES `corso` (`Codice`, `Livello`)
+  CONSTRAINT `AllievoCorso` FOREIGN KEY (`CodiceCorso`, `LivelloCorso`) REFERENCES `corso` (`Codice`, `Livello`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -42,34 +42,40 @@ CREATE TABLE `allievo` (
 
 LOCK TABLES `allievo` WRITE;
 /*!40000 ALTER TABLE `allievo` DISABLE KEYS */;
+INSERT INTO `allievo` VALUES ('faa','Mark','8999',0,7,'b','2024-07-04'),('fxx','Alex','78777',0,7,'b','2024-07-04');
 /*!40000 ALTER TABLE `allievo` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `assegnazione`
+-- Table structure for table `assenza`
 --
 
-DROP TABLE IF EXISTS `assegnazione`;
+DROP TABLE IF EXISTS `assenza`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `assegnazione` (
+CREATE TABLE `assenza` (
   `CodiceCorso` int NOT NULL,
   `LivelloCorso` varchar(45) NOT NULL,
-  `Insegnante` varchar(16) NOT NULL,
-  PRIMARY KEY (`CodiceCorso`,`LivelloCorso`,`Insegnante`),
-  KEY `AssegnazioneInsegnante_idx` (`Insegnante`),
-  CONSTRAINT `AssegnazioneCorso` FOREIGN KEY (`CodiceCorso`, `LivelloCorso`) REFERENCES `corso` (`Codice`, `Livello`),
-  CONSTRAINT `AssegnazioneInsegnante` FOREIGN KEY (`Insegnante`) REFERENCES `insegnante` (`CF`)
+  `Giorno` varchar(3) NOT NULL,
+  `OraInizio` time NOT NULL,
+  `OraFine` time NOT NULL,
+  `Allievo` varchar(16) NOT NULL,
+  `DataAssenza` date NOT NULL,
+  PRIMARY KEY (`CodiceCorso`,`LivelloCorso`,`Giorno`,`OraInizio`,`OraFine`,`Allievo`,`DataAssenza`),
+  KEY `AssenzaLezione_idx1` (`OraInizio`,`OraFine`,`Giorno`),
+  KEY `AssenzaAllievo_idx` (`Allievo`),
+  CONSTRAINT `AssenzaAllievo` FOREIGN KEY (`Allievo`) REFERENCES `allievo` (`CF`),
+  CONSTRAINT `AssenzaLezione` FOREIGN KEY (`CodiceCorso`, `LivelloCorso`, `Giorno`, `OraInizio`, `OraFine`) REFERENCES `lezione` (`CodiceCorso`, `LivelloCorso`, `Giorno`, `OraInizio`, `OraFine`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `assegnazione`
+-- Dumping data for table `assenza`
 --
 
-LOCK TABLES `assegnazione` WRITE;
-/*!40000 ALTER TABLE `assegnazione` DISABLE KEYS */;
-/*!40000 ALTER TABLE `assegnazione` ENABLE KEYS */;
+LOCK TABLES `assenza` WRITE;
+/*!40000 ALTER TABLE `assenza` DISABLE KEYS */;
+/*!40000 ALTER TABLE `assenza` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -82,12 +88,12 @@ DROP TABLE IF EXISTS `corso`;
 CREATE TABLE `corso` (
   `Codice` int NOT NULL AUTO_INCREMENT,
   `Livello` varchar(45) NOT NULL,
-  `DataDiAttivazione` datetime NOT NULL,
-  `NumeroAllievi` int NOT NULL,
+  `DataDiAttivazione` date NOT NULL,
+  `NumeroAllievi` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`Codice`,`Livello`),
   KEY `CorsoLivello_idx` (`Livello`),
-  CONSTRAINT `CorsoLivello` FOREIGN KEY (`Livello`) REFERENCES `livello` (`Nome`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `CorsoLivello` FOREIGN KEY (`Livello`) REFERENCES `livello` (`Nome`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -96,6 +102,7 @@ CREATE TABLE `corso` (
 
 LOCK TABLES `corso` WRITE;
 /*!40000 ALTER TABLE `corso` DISABLE KEYS */;
+INSERT INTO `corso` VALUES (7,'b','2024-06-05',2),(8,'c','2024-06-06',0),(9,'c','2024-06-06',0);
 /*!40000 ALTER TABLE `corso` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -121,6 +128,7 @@ CREATE TABLE `insegnante` (
 
 LOCK TABLES `insegnante` WRITE;
 /*!40000 ALTER TABLE `insegnante` DISABLE KEYS */;
+INSERT INTO `insegnante` VALUES ('a','a','a','a'),('b','b','b','b'),('d','guglielmo','p','africano'),('ffx','Guglielmo','Via del','ita'),('v','v','v','v');
 /*!40000 ALTER TABLE `insegnante` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -134,11 +142,11 @@ DROP TABLE IF EXISTS `lezione`;
 CREATE TABLE `lezione` (
   `CodiceCorso` int NOT NULL,
   `LivelloCorso` varchar(45) NOT NULL,
+  `Giorno` varchar(3) NOT NULL,
+  `OraInizio` time NOT NULL,
+  `OraFine` time NOT NULL,
   `Insegnante` varchar(16) NOT NULL,
-  `Giorno` datetime NOT NULL,
-  `OraInizio` varchar(5) NOT NULL,
-  `OraFine` varchar(5) NOT NULL,
-  PRIMARY KEY (`CodiceCorso`,`LivelloCorso`,`Insegnante`,`Giorno`,`OraInizio`,`OraFine`),
+  PRIMARY KEY (`CodiceCorso`,`LivelloCorso`,`Giorno`,`OraInizio`,`OraFine`),
   KEY `LezioneInsegnante_idx` (`Insegnante`),
   CONSTRAINT `LezioneCorso` FOREIGN KEY (`CodiceCorso`, `LivelloCorso`) REFERENCES `corso` (`Codice`, `Livello`),
   CONSTRAINT `LezioneInsegnante` FOREIGN KEY (`Insegnante`) REFERENCES `insegnante` (`CF`)
@@ -151,6 +159,7 @@ CREATE TABLE `lezione` (
 
 LOCK TABLES `lezione` WRITE;
 /*!40000 ALTER TABLE `lezione` DISABLE KEYS */;
+INSERT INTO `lezione` VALUES (7,'b','lun','12:00:00','13:00:00','a'),(7,'b','mar','12:00:00','13:00:00','a'),(7,'b','lun','10:00:00','11:00:00','ffx'),(7,'b','lun','16:00:00','17:00:00','ffx'),(7,'b','lun','17:00:00','18:00:00','ffx'),(7,'b','mar','15:00:00','16:00:00','ffx'),(7,'b','mer','12:00:00','13:00:00','ffx');
 /*!40000 ALTER TABLE `lezione` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -175,6 +184,7 @@ CREATE TABLE `livello` (
 
 LOCK TABLES `livello` WRITE;
 /*!40000 ALTER TABLE `livello` DISABLE KEYS */;
+INSERT INTO `livello` VALUES ('a','a',1),('b','b',1),('c','c',1);
 /*!40000 ALTER TABLE `livello` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -199,6 +209,7 @@ CREATE TABLE `utenti` (
 
 LOCK TABLES `utenti` WRITE;
 /*!40000 ALTER TABLE `utenti` DISABLE KEYS */;
+INSERT INTO `utenti` VALUES ('amministratore','e792cd9665119b1244e8afcf36fb5f48','Amministrazione'),('ffx','b52967cc88dc9ce2824dd87dcf7575d2','Insegnante'),('segreteria','f549bf508de5e6c5277cd12d89e6f3c9','Segreteria');
 /*!40000 ALTER TABLE `utenti` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -211,4 +222,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-05-31 16:30:47
+-- Dump completed on 2024-07-24 16:21:50
